@@ -11,6 +11,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Illuminate\Support\Facades\Log;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+
 
 class PersonalInfoController extends Controller
 {
@@ -39,7 +41,7 @@ class PersonalInfoController extends Controller
             }
 
             $data = DB::table('doctors')
-            ->where('user_id', $request->doctor_id)->get();
+                ->where('user_id', $request->doctor_id)->get();
 
             return response()->json(['status' => true, 'data' => $data]);
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
@@ -224,13 +226,54 @@ class PersonalInfoController extends Controller
     }
 
 
+    // public function updateProfileImage(Request $request)
+    // {
+    //     try {
+    //         // Authenticate user from JWT token
+    //         $user = JWTAuth::parseToken()->authenticate();
+
+    //         // If user is not authenticated, return unauthorized response
+    //         if (!$user) {
+    //             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+    //         }
+
+    //         // Check if the request has a file
+    //         if ($request->hasFile('profile_img')) {
+    //             $file = $request->file('profile_img');
+
+    //             // Generate a unique filename
+    //             $fileName = time() . '.' . $file->getClientOriginalExtension();
+
+    //             // Store the file in public disk (storage/app/public/profile_images)
+    //             $filePath = $file->storeAs('profile_images', $fileName, 'public');
+
+    //             // Update the user's profile image path in personal_information table
+    //             DB::table('patients')
+    //                 ->where('user_id', $user->id)  // Make sure you're matching the user_id
+    //                 ->update(['profile_img' => $filePath]);
+
+    //             return response()->json([
+    //                 'status' => true,
+    //                 'message' => 'Profile image updated successfully',
+    //                 'image_url' => asset('storage/' . $filePath) // Return full image URL
+    //             ]);
+    //         }
+
+    //         return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
+    //     } catch (\Exception $e) {
+    //         // Catch any errors
+    //         return response()->json(['status' => false, 'message' => 'Something went wrong', 'error' => $e->getMessage()], 500);
+    //     }
+    // }
+
+
+
     public function updateProfileImage(Request $request)
     {
         try {
             // Authenticate user from JWT token
             $user = JWTAuth::parseToken()->authenticate();
 
-            // If user is not authenticated, return unauthorized response
             if (!$user) {
                 return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
             }
@@ -239,28 +282,28 @@ class PersonalInfoController extends Controller
             if ($request->hasFile('profile_img')) {
                 $file = $request->file('profile_img');
 
-                // Generate a unique filename
-                $fileName = time() . '.' . $file->getClientOriginalExtension();
+                // Upload the file to Cloudinary
+                $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
 
-                // Store the file in public disk (storage/app/public/profile_images)
-                $filePath = $file->storeAs('profile_images', $fileName, 'public');
-
-                // Update the user's profile image path in personal_information table
+                // Update the user's profile image path in the database
                 DB::table('patients')
-                    ->where('user_id', $user->id)  // Make sure you're matching the user_id
-                    ->update(['profile_img' => $filePath]);
+                    ->where('user_id', $user->id)
+                    ->update(['profile_img' => $uploadedFileUrl]);
 
                 return response()->json([
                     'status' => true,
                     'message' => 'Profile image updated successfully',
-                    'image_url' => asset('storage/' . $filePath) // Return full image URL
+                    'image_url' => $uploadedFileUrl // Cloudinary URL
                 ]);
             }
 
             return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
         } catch (\Exception $e) {
-            // Catch any errors
-            return response()->json(['status' => false, 'message' => 'Something went wrong', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
