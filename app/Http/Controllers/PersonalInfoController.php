@@ -505,7 +505,6 @@ public function updateProfileImage(Request $request)
             ->leftJoin('doctors', 'users.id', 'doctors.user_id') // Fixed JOIN condition
             ->where('users.role', 'doctor')
             ->select(
-                
                 'doctors.name',
                 'doctors.age',
                 'doctors.gender'
