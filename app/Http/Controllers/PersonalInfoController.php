@@ -513,4 +513,33 @@ public function updateProfileImage(Request $request)
     
         return response()->json(['status' => true, 'data' => $users], 200);
     }
+
+
+
+     public function FetchPersonalList(Request $request)
+    {
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+            if (!$user) {
+                return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+            }
+
+            // Fetch all personal info excluding the logged-in user
+            $data = DB::table('doctors')
+
+                ->get();
+
+            // Loop through the data and generate full URLs for the profile image if it exists
+            foreach ($data as $item) {
+                if ($item->profile_img) {
+                    // Use asset() to generate a URL to the public directory
+                    $item->profile_img = asset('storage/' . $item->profile_img);
+                }
+            }
+
+            return response()->json(['status' => true, 'data' => $data]);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['status' => false, 'message' => 'Token is invalid or expired'], 401);
+        }
+    }
 }
