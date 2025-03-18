@@ -490,8 +490,6 @@ public function updateProfileImage(Request $request)
             ->leftJoin('patients', 'users.id', 'patients.user_id') // Fixed JOIN condition
             ->where('users.role', 'patient')
             ->select(
-                'users.id as user_id', 
-                'users.email',
                 'patients.name',
                 'patients.age',
                 'patients.gender'
@@ -507,8 +505,7 @@ public function updateProfileImage(Request $request)
             ->leftJoin('doctors', 'users.id', 'doctors.user_id') // Fixed JOIN condition
             ->where('users.role', 'doctor')
             ->select(
-                'users.id as user_id', 
-                'users.email',
+                
                 'doctors.name',
                 'doctors.age',
                 'doctors.gender'
