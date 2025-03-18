@@ -73,6 +73,11 @@ Route::post('/login', function (Request $request) {
 });
 
 
+ // get only user from api
+ Route::get('/PatientsLists', [PersonalInfoController::class, 'onlyPatients']);
+ Route::get('/DoctorLists', [PersonalInfoController::class, 'onlyDoctors']);
+
+
 
 // ✅ Protected Routes (Require Authentication)
 Route::middleware(['jwt.auth'])->group(function () {
@@ -155,7 +160,3 @@ Route::middleware(['jwt.auth'])->group(function () {
 });
 
 
-
- // get only user from api
- Route::get('/PatientsLists', [PersonalInfoController::class, 'onlyPatients']);
- Route::get('/DoctorLists', [PersonalInfoController::class, 'onlyDoctors']);
