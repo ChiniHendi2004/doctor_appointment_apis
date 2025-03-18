@@ -153,3 +153,9 @@ Route::middleware(['jwt.auth'])->group(function () {
     //Role wise list
     Route::get('/users-by-role', [PersonalInfoController::class, 'getUsersByRole']);
 });
+
+
+
+ // get only user from api
+ Route::get('/PatientsLists', [PersonalInfoController::class, 'onlyPatients']);
+ Route::get('/DoctorLists', [PersonalInfoController::class, 'onlyDoctors']);

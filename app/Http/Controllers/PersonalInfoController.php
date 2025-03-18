@@ -268,44 +268,196 @@ class PersonalInfoController extends Controller
 
 
 
-    public function updateProfileImage(Request $request)
-    {
-        try {
-            // Authenticate user from JWT token
-            $user = JWTAuth::parseToken()->authenticate();
+    // public function updateProfileImage(Request $request)
+    // {
+    //     try {
+    //         // Authenticate user from JWT token
+    //         $user = JWTAuth::parseToken()->authenticate();
 
-            if (!$user) {
-                return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
-            }
+    //         if (!$user) {
+    //             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+    //         }
 
-            // Check if the request has a file
-            if ($request->hasFile('profile_img')) {
-                $file = $request->file('profile_img');
+    //         // Check if the request has a file
+    //         if ($request->hasFile('profile_img')) {
+    //             $file = $request->file('profile_img');
 
-                // Upload the file to Cloudinary
-                $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
+    //             // Upload the file to Cloudinary
+    //             $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
 
-                // Update the user's profile image path in the database
-                DB::table('patients')
-                    ->where('user_id', $user->id)
-                    ->update(['profile_img' => $uploadedFileUrl]);
+    //             // Update the user's profile image path in the database
+    //             DB::table('patients')
+    //                 ->where('user_id', $user->id)
+    //                 ->update(['profile_img' => $uploadedFileUrl]);
 
-                return response()->json([
-                    'status' => true,
-                    'message' => 'Profile image updated successfully',
-                    'image_url' => $uploadedFileUrl // Cloudinary URL
-                ]);
-            }
+    //             return response()->json([
+    //                 'status' => true,
+    //                 'message' => 'Profile image updated successfully',
+    //                 'image_url' => $uploadedFileUrl // Cloudinary URL
+    //             ]);
+    //         }
 
-            return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Something went wrong',
-                'error' => $e->getMessage()
-            ], 500);
+    //         return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Something went wrong',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+    // public function updateProfileImage(Request $request)
+    // {
+    //     try {
+    //         $user = JWTAuth::parseToken()->authenticate();
+    //         if (!$user) {
+    //             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+    //         }
+
+    //         if (!$request->hasFile('profile_img')) {
+    //             return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
+    //         }
+
+    //         $file = $request->file('profile_img');
+    //         if (!$file) {
+    //             return response()->json(['status' => false, 'message' => 'File not received'], 400);
+    //         }
+
+    //         // Upload to Cloudinary
+    //         $uploadedFileUrl = Cloudinary::upload($file->getRealPath())->getSecurePath();
+
+    //         // Update in database
+    //         DB::table('patients')
+    //             ->where('user_id', $user->id)
+    //             ->update(['profile_img' => $uploadedFileUrl]);
+
+    //         return response()->json([
+    //             'status' => true,
+    //             'message' => 'Profile image updated successfully',
+    //             'image_url' => $uploadedFileUrl
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Something went wrong',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+
+//     public function updateProfileImage(Request $request)
+// {
+//     try {
+//         // Authenticate user
+//         $user = JWTAuth::parseToken()->authenticate();
+//         if (!$user) {
+//             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
+//         }
+
+//         // Validate that a file is uploaded
+//         if (!$request->hasFile('profile_img')) {
+//             return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
+//         }
+
+//         $file = $request->file('profile_img');
+//         if (!$file) {
+//             return response()->json(['status' => false, 'message' => 'File not received'], 400);
+//         }
+
+//         // Validate that the uploaded file is an image
+//         if (!$file->isValid() || !in_array($file->getClientMimeType(), ['image/jpeg', 'image/png', 'image/gif'])) {
+//             return response()->json(['status' => false, 'message' => 'Invalid file type. Only images are allowed.'], 400);
+//         }
+
+//         // Upload to Cloudinary
+//         $uploadResponse = Cloudinary::upload($file->getRealPath());
+//         if (!$uploadResponse) {
+//             return response()->json(['status' => false, 'message' => 'Image upload failed.'], 500);
+//         }
+
+//         $uploadedFileUrl = $uploadResponse->getSecurePath();
+
+//         // Update database with new image URL
+//         DB::table('patients')
+//             ->where('user_id', $user->id)
+//             ->update(['profile_img' => $uploadedFileUrl]);
+
+//         return response()->json([
+//             'status' => true,
+//             'message' => 'Profile image updated successfully',
+//             'image_url' => $uploadedFileUrl
+//         ]);
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'Something went wrong',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+
+
+public function updateProfileImage(Request $request)
+{
+    try {
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
         }
+
+        if (!$request->hasFile('profile_img')) {
+            return response()->json(['status' => false, 'message' => 'No image uploaded'], 400);
+        }
+
+        $file = $request->file('profile_img');
+        if (!$file) {
+            return response()->json(['status' => false, 'message' => 'File not received'], 400);
+        }
+
+        // Validate the file type
+        if (!$file->isValid() || !in_array($file->getClientMimeType(), ['image/jpeg', 'image/png', 'image/gif'])) {
+            return response()->json(['status' => false, 'message' => 'Invalid file type. Only images are allowed.'], 400);
+        }
+
+        // Upload to Cloudinary
+        $uploadResponse = Cloudinary::upload($file->getRealPath());
+
+        // 🔍 Log the Cloudinary response
+        Log::info('Cloudinary Upload Response:', ['response' => $uploadResponse]);
+
+        // Check if Cloudinary upload was successful
+        if (!$uploadResponse || !method_exists($uploadResponse, 'getSecurePath') || is_null($uploadResponse->getSecurePath())) {
+            return response()->json(['status' => false, 'message' => 'Image upload failed'], 500);
+        }
+
+        // Get uploaded file URL
+        $uploadedFileUrl = $uploadResponse->getSecurePath();
+
+        // Update the database with the new image URL
+        DB::table('patients')
+            ->where('user_id', $user->id)
+            ->update(['profile_img' => $uploadedFileUrl]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile image updated successfully',
+            'image_url' => $uploadedFileUrl
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Profile Image Upload Error:', ['error' => $e->getMessage()]);
+        return response()->json([
+            'status' => false,
+            'message' => 'Something went wrong',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
+
+
+
 
     public function getUsersByRole(Request $request)
     {
@@ -328,5 +480,41 @@ class PersonalInfoController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => false, 'message' => 'Token is invalid or expired'], 401);
         }
+    }
+
+    
+
+    public function onlyPatients(Request $request)
+    {
+        $users = DB::table('users')
+            ->leftJoin('patients', 'users.id', 'patients.user_id') // Fixed JOIN condition
+            ->where('users.role', 'patient')
+            ->select(
+                'users.id as user_id', 
+                'users.email',
+                'patients.name',
+                'patients.age',
+                'patients.gender'
+            )
+            ->get(); // Added get() to execute the query
+    
+        return response()->json(['status' => true, 'data' => $users], 200);
+    }
+    
+    public function onlyDoctors(Request $request)
+    {
+        $users = DB::table('users')
+            ->leftJoin('doctors', 'users.id', 'doctors.user_id') // Fixed JOIN condition
+            ->where('users.role', 'doctor')
+            ->select(
+                'users.id as user_id', 
+                'users.email',
+                'doctors.name',
+                'doctors.age',
+                'doctors.gender'
+            )
+            ->get(); // Added get() to execute the query
+    
+        return response()->json(['status' => true, 'data' => $users], 200);
     }
 }
