@@ -65,7 +65,7 @@ class PersonalInfoController extends Controller
         }
     }
 
-   public function FetchDoctorProfile(Request $request)
+  public function FetchPatientProfile(Request $request)
 {
     try {
         $user = JWTAuth::parseToken()->authenticate();
@@ -73,14 +73,14 @@ class PersonalInfoController extends Controller
             return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $data = DB::table('doctors')
+        $data = DB::table('patients')
             ->where('user_id', $user->id)
             ->select('name', 'profile_img')
             ->first();
 
         if ($data) {
-            // Use default image if profile_img is missing
-            $data->profile_img = $data->profile_img ?: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2IYhSn8Y9S9_HF3tVaYOepJBcrYcd809pBA&s';
+            // If profile_img is a Google URL, just return it. You may also validate or sanitize here.
+            $data->profile_img = $data->profile_img ?: 'https://via.placeholder.com/150'; // default fallback
 
             return response()->json(['status' => true, 'data' => $data]);
         } else {
@@ -90,6 +90,7 @@ class PersonalInfoController extends Controller
         return response()->json(['status' => false, 'message' => 'Token is invalid or expired'], 401);
     }
 }
+
 
    public function FetchDoctorProfile(Request $request)
 {
