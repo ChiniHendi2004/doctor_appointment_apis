@@ -91,36 +91,32 @@ class PersonalInfoController extends Controller
     }
 }
 
-    public function FetchPatientProfile(Request $request)
-    {
-        try {
-            $user = JWTAuth::parseToken()->authenticate();
-            if (!$user) {
-                return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
-            }
-
-            $data = DB::table('patients')
-                ->where('user_id', $user->id)
-                ->select('name', 'profile_img')
-                ->first();  // Use `first()` if you expect only one record
-
-            if ($data) {
-                // Generate full URL for the profile image if it exists
-                if ($data->profile_img) {
-                    // Use asset() to generate a URL to the public directory
-                    $data->profile_img = asset('storage/' . $data->profile_img);
-                }
-
-                return response()->json(['status' => true, 'data' => $data]);
-            }
-            // Check if data is found
-            else {
-                return response()->json(['status' => false, 'message' => 'No profile found'], 404);
-            }
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return response()->json(['status' => false, 'message' => 'Token is invalid or expired'], 401);
+   public function FetchDoctorProfile(Request $request)
+{
+    try {
+        $user = JWTAuth::parseToken()->authenticate();
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'Unauthorized'], 401);
         }
+
+        $data = DB::table('doctors')
+            ->where('user_id', $user->id)
+            ->select('name', 'profile_img')
+            ->first();
+
+        if ($data) {
+            // Use default image if profile_img is missing
+            $data->profile_img = $data->profile_img ?: 'https://via.placeholder.com/150';
+
+            return response()->json(['status' => true, 'data' => $data]);
+        } else {
+            return response()->json(['status' => false, 'message' => 'No profile found'], 404);
+        }
+    } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+        return response()->json(['status' => false, 'message' => 'Token is invalid or expired'], 401);
     }
+}
+
 
 
     // ✅ Store personal information (user_id is auto-fetched from JWT)
